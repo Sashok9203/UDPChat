@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPChat", "UDPChat.csproj", "{EFBE82C5-5600-4ACE-A114-F4B5F7682B73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedData", "..\SharedData\SharedData.csproj", "{2BABA89A-2480-4A9F-A949-7592309283AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "..\Server\Server.csproj", "{9A227581-E6A9-4B8D-8AC1-9FDE4C747109}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFBE82C5-5600-4ACE-A114-F4B5F7682B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFBE82C5-5600-4ACE-A114-F4B5F7682B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFBE82C5-5600-4ACE-A114-F4B5F7682B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBE82C5-5600-4ACE-A114-F4B5F7682B73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BABA89A-2480-4A9F-A949-7592309283AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BABA89A-2480-4A9F-A949-7592309283AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BABA89A-2480-4A9F-A949-7592309283AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BABA89A-2480-4A9F-A949-7592309283AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A227581-E6A9-4B8D-8AC1-9FDE4C747109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A227581-E6A9-4B8D-8AC1-9FDE4C747109}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A227581-E6A9-4B8D-8AC1-9FDE4C747109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A227581-E6A9-4B8D-8AC1-9FDE4C747109}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9B53C417-B684-4D56-9EA1-A5C6593D56FA}
+	EndGlobalSection
+EndGlobal

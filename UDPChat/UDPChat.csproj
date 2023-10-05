@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\connect.png" />
+    <None Remove="Images\disconnect.png" />
+    <None Remove="Images\no_avatar.png" />
+    <None Remove="Images\send.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SharedData\SharedData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\connect.png" />
+    <Resource Include="Images\disconnect.png" />
+    <Resource Include="Images\no_avatar.png" />
+    <Resource Include="Images\send.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
