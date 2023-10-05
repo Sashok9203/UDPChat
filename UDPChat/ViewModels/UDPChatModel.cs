@@ -251,9 +251,6 @@ namespace UDPChat.ViewModels
             }
         }
 
-
-
-
         public byte[] AvatarImage
         {
             get => avatarImage;
