@@ -5,20 +5,17 @@ namespace Server
     internal class Program
     {
         private static ChatServer? chat;
-        private static readonly string ip = "127.0.0.1";
-        private static readonly int port = 8080;
-        private static readonly int clientCount = 3;
         static void Main(string[] args)
         {
+            int port = 0,
+                clientCount = 0;
+            if (args.Length < 3 || !int.TryParse(args[1], out port) || !int.TryParse(args[2], out clientCount)) exit("Invalid command parameters...");
+            string ip = args[0];
             string mutexName = $"{ip}:{port}";
             if (!Mutex.TryOpenExisting(mutexName, out Mutex? mutex))
                 mutex = new Mutex(false, mutexName);
-            else
-            {
-                Console.WriteLine("Another instance of this program was opened with current network address!");
-                Console.ReadKey();
-                Environment.Exit(0);
-            }
+            else exit("Another instance of this program was opened with current network address!");
+            
             mutex?.WaitOne();
                AppDomain.CurrentDomain.ProcessExit += new EventHandler(ProcessExit);
                chat = new(clientCount, port,ip);
@@ -26,5 +23,12 @@ namespace Server
             mutex?.ReleaseMutex();
         }
         static void ProcessExit(object sender, EventArgs e) => chat?.Stop();
+
+        static void exit(string message)
+        {
+            Console.WriteLine(message);
+            Console.ReadKey();
+            Environment.Exit(0);
+        }
     }
 }

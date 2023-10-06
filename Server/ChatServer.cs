@@ -29,14 +29,14 @@ namespace Server
             IPEndPoint? clientEndPoint = null;
             
             listener = new UdpClient(new IPEndPoint(IPAddress.Parse(ip), port));
-            Console.WriteLine("Chat server started...");
+            Console.WriteLine($"Chat server {listener.Client.LocalEndPoint} started...");
             while (true)
             {
                 try
                 {
                     byte[] data = listener.Receive(ref clientEndPoint);
                     ClientMessage clientMessage = JsonSerializer.Deserialize<ClientMessage>(Encoding.UTF8.GetString(data)) ?? new();
-                    Console.WriteLine($"Chat server resive message [{clientMessage.Message}] from client [{clientEndPoint.Address}:{clientEndPoint.Port}]...");
+                    Console.WriteLine($"Chat server resive message [{clientMessage.Message}] from client [{clientEndPoint}]...");
                     switch (clientMessage.Message)
                     {
                         case ClientToServerMessage.Connect:
@@ -57,7 +57,7 @@ namespace Server
                                     break;
                                 }
                                 sendMessage(clientEndPoint, ServerToClientMessage.NotConnected, message,false);
-                                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] not connected...{message}");
+                                Console.WriteLine($"Client [{clientEndPoint}] not connected...{message}");
                             }
                             break;
 
@@ -78,13 +78,13 @@ namespace Server
                             if (clients.Count - 1 == 0)
                             {
                                 sendMessage(clientEndPoint, ServerToClientMessage.NoMembers, string.Empty, false);
-                                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] try get members...no members");
+                                Console.WriteLine($"Client [{clientEndPoint}] try get members...no members");
                             }
                             else
                             {
                                 ClientInfo[] clientsInfo = clients.Values.Where(x => x.Name != clients[clientEndPoint].Name).ToArray();
                                 sendMessage(clientEndPoint, ServerToClientMessage.Members, clientsInfo);
-                                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] try get members...{clientsInfo.Length} members info sended");
+                                Console.WriteLine($"Client [{clientEndPoint}] try get members...{clientsInfo.Length} members info sended");
                             }
 
                             break;
@@ -96,11 +96,11 @@ namespace Server
                             {
                                 IPEndPoint? pClient = clients.FirstOrDefault(x => x.Value.Name == chatMessage.PrivateName).Key;
                                 sendMessage(pClient, ServerToClientMessage.Message, clientMessage.Content,false);
-                                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] send private message...");
+                                Console.WriteLine($"Client [{clientEndPoint}] send private message...");
                             }
                             else
                             {
-                                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] send message...");
+                                Console.WriteLine($"Client [{clientEndPoint}] send message...");
                                 foreach (var client in clients.Keys)
                                 {
                                     if (!client.Equals(clientEndPoint))
@@ -133,7 +133,7 @@ namespace Server
                 Content = serialize ? JsonSerializer.Serialize(content): content as string
                 }));
             listener?.SendAsync(data, endPoint);
-            Console.WriteLine($"Chat server send message [{message}] to client [{endPoint.Address}:{endPoint.Port}]...");
+            Console.WriteLine($"Chat server send message [{message}] to client [{endPoint}]...");
         }
 
         private bool clientConnectedCheck(IPEndPoint clientEndPoint)
@@ -142,7 +142,7 @@ namespace Server
             else
             {
                 sendMessage(clientEndPoint, ServerToClientMessage.NotConnected, "Not connected",false);
-                Console.WriteLine($"Client [{clientEndPoint.Address}:{clientEndPoint.Port}] not connected...");
+                Console.WriteLine($"Client [{clientEndPoint}] not connected...");
                 return false;
             }
         }
