@@ -16,6 +16,7 @@ namespace Server
         private string ip;
         private Dictionary<IPEndPoint,ClientInfo> clients = new ();
         private UdpClient? listener;
+        private bool started = false;
         
         public ChatServer(int clientCount, int port,string ip)
         {
@@ -27,9 +28,15 @@ namespace Server
         public void Start()
         {
             IPEndPoint? clientEndPoint = null;
-            
-            listener = new UdpClient(new IPEndPoint(IPAddress.Parse(ip), port));
+
+            try { listener = new UdpClient(new IPEndPoint(IPAddress.Parse(ip), port)); }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            };
             Console.WriteLine($"Chat server {listener.Client.LocalEndPoint} started...");
+            started = true;
             while (true)
             {
                 try
@@ -118,6 +125,7 @@ namespace Server
 
         public void Stop() 
         {
+            if (!started) return;
             foreach (var client in clients)
                 sendMessage(client.Key, ServerToClientMessage.Disconnected, "Server stoped", false);
             clients.Clear();
