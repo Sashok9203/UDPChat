@@ -135,7 +135,6 @@ namespace UDPChat.ViewModels
                     MessageBox.Show(ex.Message, "Exception");
                     if (IsConnected) await connect();
                 }
-
             }
             while (IsConnected);
         }
