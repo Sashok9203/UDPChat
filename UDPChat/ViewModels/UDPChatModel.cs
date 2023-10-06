@@ -61,66 +61,79 @@ namespace UDPChat.ViewModels
         {
             do 
             {
-                serverMessage = await resiveMessageAsync();
-                switch (serverMessage.Message)
+                try
                 {
-                    case ServerToClientMessage.NewMemberConnected:
-                        ClientInfo? clientInfo = JsonSerializer.Deserialize<ClientInfo>(serverMessage.Content);
-                        ConnectedClients.Add(new() { ClientInfo = clientInfo });
-                        ClientsNames.Add(clientInfo.Name);
-                        SelectedName = everyone;
-                        break;
+                    serverMessage = await resiveMessageAsync();
+                    switch (serverMessage.Message)
+                    {
+                        case ServerToClientMessage.NewMemberConnected:
+                            ClientInfo? clientInfo = JsonSerializer.Deserialize<ClientInfo>(serverMessage.Content);
+                            ConnectedClients.Add(new() { ClientInfo = clientInfo });
+                            ClientsNames.Add(clientInfo.Name);
+                            SelectedName = everyone;
+                            break;
 
-                    case ServerToClientMessage.MemberDisconnected:
-                        string? name = serverMessage.Content;
-                        ConnectedClients.Remove(ConnectedClients.First(x=>x.ClientInfo?.Name == name));
-                        ClientsNames.Remove(name);
-                        SelectedName = everyone;
-                        break;
+                        case ServerToClientMessage.MemberDisconnected:
+                            string? name = serverMessage.Content;
+                            ConnectedClients.Remove(ConnectedClients.First(x => x.ClientInfo?.Name == name));
+                            ClientsNames.Remove(name);
+                            SelectedName = everyone;
+                            break;
 
-                    case ServerToClientMessage.Disconnected:
-                        string? message = serverMessage.Content;
-                        IsConnected = false;
-                        await Task.Delay(1000);
-                        client.Close();
-                        MessageBox.Show(message, serverMessage.Message.ToString());
-                        break;
+                        case ServerToClientMessage.Disconnected:
+                            string? message = serverMessage.Content;
+                            IsConnected = false;
+                            await Task.Delay(1000);
+                            client.Close();
+                            MessageBox.Show(message, serverMessage.Message.ToString());
+                            break;
 
-                    case ServerToClientMessage.Message:
-                        ChatMessage? chatMessage = JsonSerializer.Deserialize<ChatMessage>(serverMessage.Content);
-                        ClientInfoViewer info = ConnectedClients.FirstOrDefault(x => x.ClientInfo.Name == chatMessage.Name);
-                        if (info.Blocked == Visibility.Visible) break;
-                        ChatMessages.Add(new()
-                        {
-                            Message = chatMessage.Message,
-                            Time = DateTime.Now.ToShortTimeString(),
-                            ClientInfo = info.ClientInfo,
-                            MessageAlignment = HorizontalAlignment.Left,
-                            PrivateName = chatMessage.PrivateName
-                        }) ;
-                        break;
+                        case ServerToClientMessage.Message:
+                            ChatMessage? chatMessage = JsonSerializer.Deserialize<ChatMessage>(serverMessage.Content);
+                            ClientInfoViewer info = ConnectedClients.FirstOrDefault(x => x.ClientInfo.Name == chatMessage.Name);
+                            if (info.Blocked == Visibility.Visible) break;
+                            ChatMessages.Add(new()
+                            {
+                                Message = chatMessage.Message,
+                                Time = DateTime.Now.ToShortTimeString(),
+                                ClientInfo = info.ClientInfo,
+                                MessageAlignment = HorizontalAlignment.Left,
+                                PrivateName = chatMessage.PrivateName
+                            });
+                            break;
 
-                    case ServerToClientMessage.Connected:
-                        IsConnected = true;
-                        await sendMessageAsync(ClientToServerMessage.GetConnectedMembers, null);
-                        break;
+                        case ServerToClientMessage.Connected:
+                            IsConnected = true;
+                            await sendMessageAsync(ClientToServerMessage.GetConnectedMembers, null);
+                            break;
 
-                    case ServerToClientMessage.Members:
-                        ConnectedClients.Clear();
-                        ClientsNames.Clear();
-                        ClientsNames.Add(everyone);
-                        SelectedName = everyone;
-                        ClientInfo[]? connectedClients = JsonSerializer.Deserialize<ClientInfo[]>(serverMessage.Content);
-                        foreach (var item in connectedClients)
-                        {
-                            ConnectedClients.Add(new() { ClientInfo = item });
-                            ClientsNames.Add(item.Name);
-                        }
-                        break;
+                        case ServerToClientMessage.Members:
+                            ConnectedClients.Clear();
+                            ClientsNames.Clear();
+                            ClientsNames.Add(everyone);
+                            SelectedName = everyone;
+                            ClientInfo[]? connectedClients = JsonSerializer.Deserialize<ClientInfo[]>(serverMessage.Content);
+                            foreach (var item in connectedClients)
+                            {
+                                ConnectedClients.Add(new() { ClientInfo = item });
+                                ClientsNames.Add(item.Name);
+                            }
+                            break;
 
-                    case ServerToClientMessage.NotConnected:
-                        MessageBox.Show(serverMessage?.Content);
-                        break;
+                        case ServerToClientMessage.NotConnected:
+                            MessageBox.Show(serverMessage?.Content);
+                            break;
+                    }
+                }
+                catch (SocketException se)
+                {
+                    MessageBox.Show(se.Message, "Socket Exception");
+                    client.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exception");
+                    if (IsConnected) await connect();
                 }
 
             }
