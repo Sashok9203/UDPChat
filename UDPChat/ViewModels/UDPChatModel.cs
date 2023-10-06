@@ -26,7 +26,7 @@ namespace UDPChat.ViewModels
 
         private const int port = 8080;
 
-        private readonly UdpClient client;
+        private UdpClient client;
 
         private IPEndPoint? server = null;
 
@@ -38,17 +38,7 @@ namespace UDPChat.ViewModels
 
         private bool isConnected = false;
 
-        private bool IsConnected
-        {
-            get => isConnected;
-            set
-            {
-                isConnected = value;
-                OnPropertyChanged();
-                ConnectImage = isConnected? Resource.disconnect: Resource.connect;
-            }
-        }
-
+        
         private string contextMenuHeader = "Block",
                        selectedName = everyone,
                        message = string.Empty;
@@ -92,19 +82,21 @@ namespace UDPChat.ViewModels
                         string? message = serverMessage.Content;
                         IsConnected = false;
                         await Task.Delay(1000);
+                        client.Close();
                         MessageBox.Show(message, serverMessage.Message.ToString());
                         break;
 
                     case ServerToClientMessage.Message:
                         ChatMessage? chatMessage = JsonSerializer.Deserialize<ChatMessage>(serverMessage.Content);
-                        ClientInfo info = ConnectedClients.FirstOrDefault(x => x.ClientInfo.Name == chatMessage.Name).ClientInfo;
+                        ClientInfoViewer info = ConnectedClients.FirstOrDefault(x => x.ClientInfo.Name == chatMessage.Name);
+                        if (info.Blocked == Visibility.Visible) break;
                         ChatMessages.Add(new()
                         {
                             Message = chatMessage.Message,
                             Time = DateTime.Now.ToShortTimeString(),
-                            ClientInfo = info,
-
-                            MessageAlignment = HorizontalAlignment.Left
+                            ClientInfo = info.ClientInfo,
+                            MessageAlignment = HorizontalAlignment.Left,
+                            PrivateName = chatMessage.PrivateName
                         }) ;
                         break;
 
@@ -153,6 +145,8 @@ namespace UDPChat.ViewModels
                     Name = Name,
                     AvatarImage = AvatarImage
                 };
+                client = new();
+                client.Connect(new IPEndPoint(IPAddress.Parse(Address), port));
             }
            
             await sendMessageAsync(message,cli);
@@ -182,12 +176,10 @@ namespace UDPChat.ViewModels
             OpenFileDialog ofd = new ();
             if (ofd.ShowDialog() == true)
             {
-                using MemoryStream ms = new( File.ReadAllBytes(ofd.FileName));
+                using MemoryStream ms = new(await File.ReadAllBytesAsync(ofd.FileName));
                 Bitmap bitmap = new(new Bitmap(ms), 64, 64) ;
                 ImageConverter imageConverter = new();
-
                 AvatarImage = imageConverter.ConvertTo(bitmap, typeof(byte[])) as byte[];
-
             }
             else AvatarImage = Resource.no_avatar;
         }
@@ -206,19 +198,28 @@ namespace UDPChat.ViewModels
                 Message = Message,
                 Time = DateTime.Now.ToShortTimeString(),
                 ClientInfo = new() { Name = SelectedName == everyone ? "You" : $"You for {SelectedName}" },
-                
-                MessageAlignment = HorizontalAlignment.Right
+                MessageAlignment = HorizontalAlignment.Right,
+                PrivateName = SelectedName
             });
             Message = string.Empty;
         }
 
+       
+
+        private async void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            if (IsConnected) await connect();
+        }
+
         public UDPChatModel()
         {
-            client = new ();
-            client.Connect(new IPEndPoint(IPAddress.Parse(serverIp),port));
+            
+            Application.Current.MainWindow.Closing += new CancelEventHandler(MainWindow_Closing);
         }
 
         public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = serverIp;
+        public int Port { get; set; } = port;
 
         public string Message
         {
@@ -271,6 +272,20 @@ namespace UDPChat.ViewModels
             }
         }
 
+        public bool IsConnected
+        {
+            get => isConnected;
+            set
+            {
+                isConnected = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NotConnected));
+                ConnectImage = isConnected ? Resource.disconnect : Resource.connect;
+            }
+        }
+
+        public bool NotConnected => !IsConnected;
+
         public ObservableCollection<ChatMessageViewer> ChatMessages { get; set; } = new() ;
 
         public ObservableCollection<string> ClientsNames { get; set; } = new() { everyone };
@@ -283,7 +298,7 @@ namespace UDPChat.ViewModels
 
         public RelayCommand Block => new((o) => block(o));
 
-        public RelayCommand GetAvatar => new((o) => loadAvatar(),(o) => !IsConnected);
+        public RelayCommand GetAvatar => new((o) => loadAvatar(),(o) => NotConnected);
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

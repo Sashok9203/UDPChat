@@ -1,10 +1,6 @@
 ﻿using SharedData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace UDPChat.ViewModels
 {
@@ -15,5 +11,6 @@ namespace UDPChat.ViewModels
         public string PrivateName { get; set; } = string.Empty;
         public string Time { get; set; } = string.Empty;
         public HorizontalAlignment MessageAlignment { get; set; }
+        public Brush MessageBackground => PrivateName.Equals("Everyone") ? Brushes.LightSkyBlue: Brushes.LightGreen;
     }
 }

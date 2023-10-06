@@ -20,11 +20,6 @@
             <GradientStop Color="#FF54BDFF" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="textBoxBackground" EndPoint="0.5,1" StartPoint="0.5,0">
-            <GradientStop Color="#FF639CC8"/>
-            <GradientStop Color="#FF54BDFF" Offset="1"/>
-        </LinearGradientBrush>
-                
         <SolidColorBrush x:Key="Brush">#FF8D8A8A</SolidColorBrush>
     </Window.Resources>
 
@@ -69,30 +64,38 @@
         </Border>
 
         <Border Background="{StaticResource borderBackground}" Grid.Column="1" Margin="5" BorderBrush="DarkBlue"  BorderThickness="1"  CornerRadius="2">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility ="Auto">
-                <ItemsControl ItemsSource="{Binding ChatMessages}" HorizontalContentAlignment="Stretch" Margin="20">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding MessageAlignment}" Margin="5">
-                                <Ellipse Width="35" Height="35" StrokeThickness="1" Margin="5,0,0,0">
-                                    <Ellipse.Fill>
-                                        <ImageBrush ImageSource="{Binding ClientInfo.AvatarImage}"/>
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <Border Background="LightSkyBlue" BorderBrush="Blue" BorderThickness="1" CornerRadius="0,5,5,5">
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <TextBlock Text="{Binding ClientInfo.Name}" HorizontalAlignment="Left" FontSize="12" FontWeight="Medium" Foreground="Blue" />
-                                        <TextBlock Text="{Binding Message}" HorizontalAlignment="Left" FontSize="13" FontWeight="Normal"  Foreground="DarkBlue"/>
-                                        <TextBlock Text="{Binding Time}" HorizontalAlignment="Right" FontSize="11"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <DockPanel LastChildFill="True">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding NotConnected}">
+                    <TextBlock Text="Server" Foreground="White" Margin="0,0,5,0"/>
+                    <TextBox Text="{Binding Address}" Width="100" Margin="0,0,5,0" Height="20" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="#FF284DBF" SelectionBrush="#FF60A7E0" Foreground="White" FontSize="12"/>
+                    <TextBlock Text="Port" Foreground="White" Margin="0,0,5,0" />
+                    <TextBox Text="{Binding Port}" Width="40" Height="20"  VerticalContentAlignment="Center" Margin="0,0,5,0" Background="Transparent"  BorderBrush="#FF284DBF" SelectionBrush="#FF60A7E0" Foreground="White" FontSize="12"/>
+                </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility ="Auto">
+                    <ItemsControl ItemsSource="{Binding ChatMessages}" HorizontalContentAlignment="Stretch" Margin="20">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding MessageAlignment}" Margin="5">
+                                    <Ellipse Width="35" Height="35" StrokeThickness="1" Margin="5,0,0,0">
+                                        <Ellipse.Fill>
+                                            <ImageBrush ImageSource="{Binding ClientInfo.AvatarImage}"/>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <Border Background="{Binding MessageBackground,Mode=OneTime}" BorderBrush="Blue" BorderThickness="1" CornerRadius="0,5,5,5">
+                                        <StackPanel Orientation="Vertical" Margin="5">
+                                            <TextBlock Text="{Binding ClientInfo.Name}" HorizontalAlignment="Left" FontSize="12" FontWeight="Medium" Foreground="Blue" />
+                                            <TextBlock Text="{Binding Message}" HorizontalAlignment="Left" FontSize="13" FontWeight="Normal"  Foreground="DarkBlue"/>
+                                            <TextBlock Text="{Binding Time}" HorizontalAlignment="Right" FontSize="11"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
-        <Border Background="{StaticResource borderBackground}" Grid.Column="1" Grid.Row="1" Margin="5" BorderBrush="DarkBlue"  BorderThickness="1"  CornerRadius="2">
+        <Border Background="{StaticResource borderBackground}" Grid.Column="1" Grid.Row="1" Margin="5" BorderBrush="DarkBlue"  BorderThickness="1"  CornerRadius="2" IsEnabled="{Binding IsConnected}">
             <DockPanel LastChildFill="True">
                 <TextBlock DockPanel.Dock="Left" Text="Member" FontSize="14" FontWeight="Medium" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="White"/>
                 <ComboBox ItemsSource="{Binding ClientsNames}" SelectedItem="{Binding SelectedName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" DockPanel.Dock="Left" Height="25"  VerticalAlignment="Center" Margin="5,0,5,0" Width="80" HorizontalAlignment="Left"/>
@@ -107,7 +110,7 @@
             </DockPanel>
         </Border>
 
-        <Border Background="{StaticResource borderBackground}"  Grid.Row="1" Margin="5" BorderBrush="DarkBlue"  BorderThickness="1"  CornerRadius="2" >
+        <Border Background="{StaticResource borderBackground}"  Grid.Row="1" Margin="5" BorderBrush="DarkBlue"  BorderThickness="1"  CornerRadius="2">
             <StackPanel  Orientation="Horizontal">
                 <Button  FocusVisualStyle="{x:Null}" Command="{Binding GetAvatar}">
                     <Button.Template>
@@ -120,7 +123,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <TextBox Text="{Binding Name}" VerticalContentAlignment="Center" Width="90" Margin="10,0,0,0" Height="25" Background="{StaticResource textBoxBackground}" BorderBrush="#FF0D2775" SelectionBrush="#FF60A7E0" Foreground="White" FontSize="13"/>
+                <TextBox Text="{Binding Name}" VerticalContentAlignment="Center" Width="90" Margin="10,0,0,0" Height="25" Background="Transparent"  BorderBrush="#FF0D2775" SelectionBrush="#FF60A7E0" Foreground="White" FontSize="13" IsEnabled="{Binding NotConnected}"/>
                 <Button  FocusVisualStyle="{x:Null}" Command="{Binding Connect}">
                     <Button.Template>
                         <ControlTemplate>
